@@ -9,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/open-telemetry/opentelemetry-operator/pkg/apis/opentelemetry"
 	"github.com/open-telemetry/opentelemetry-operator/pkg/apis/opentelemetry/v1alpha1"
@@ -16,6 +17,17 @@ import (
 
 // reconcileService reconciles the service(s) required for the instance in the current context
 func (r *ReconcileOpenTelemetryService) reconcileService(ctx context.Context) error {
+	instance := ctx.Value(opentelemetry.ContextInstance).(*v1alpha1.OpenTelemetryService)
+
+	opts := client.InNamespace(instance.Namespace).MatchingLabels(map[string]string{
+		"app.kubernetes.io/instance":   fmt.Sprintf("%s.%s", instance.Namespace, instance.Name),
+		"app.kubernetes.io/managed-by": "opentelemetry-operator",
+	})
+	list := &corev1.ServiceList{}
+	if err := r.client.List(ctx, opts, list); err != nil {
+		return err
+	}
+
 	svcs := []*corev1.Service{
 		service(ctx),
 		headless(ctx),
@@ -33,14 +45,28 @@ func (r *ReconcileOpenTelemetryService) reconcileService(ctx context.Context) er
 		} else if err != nil {
 			return err
 		}
+
+		// it exists already, merge the two if the end result isn't identical to the existing one
+		// TODO(jpkroehling)
+
 	}
-
-	// it exists already, merge the two if the end result isn't identical to the existing one
-	// TODO(jpkroehling)
-
 	// and finally, we should remove all services that were previously created for this instance that
 	// are not in use anymore
 	// TODO(jpkroehling)
+	for _, existing := range list.Items {
+		del := true
+		for _, keep := range svcs {
+			if keep.Name == existing.Name && keep.Namespace == existing.Namespace {
+				del = false
+			}
+		}
+
+		if del {
+			if err := r.client.Delete(ctx, &existing); err != nil {
+				return err
+			}
+		}
+	}
 
 	return nil
 }
