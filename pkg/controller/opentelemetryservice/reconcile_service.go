@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -18,6 +19,7 @@ import (
 // reconcileService reconciles the service(s) required for the instance in the current context
 func (r *ReconcileOpenTelemetryService) reconcileService(ctx context.Context) error {
 	instance := ctx.Value(opentelemetry.ContextInstance).(*v1alpha1.OpenTelemetryService)
+	logger := ctx.Value(opentelemetry.ContextLogger).(logr.Logger)
 
 	opts := client.InNamespace(instance.Namespace).MatchingLabels(map[string]string{
 		"app.kubernetes.io/instance":   fmt.Sprintf("%s.%s", instance.Namespace, instance.Name),
@@ -36,23 +38,49 @@ func (r *ReconcileOpenTelemetryService) reconcileService(ctx context.Context) er
 		desired := svc
 		r.setControllerReference(ctx, desired)
 
-		expected := &corev1.Service{}
-		err := r.client.Get(ctx, types.NamespacedName{Name: desired.Name, Namespace: desired.Namespace}, expected)
+		existing := &corev1.Service{}
+		err := r.client.Get(ctx, types.NamespacedName{Name: desired.Name, Namespace: desired.Namespace}, existing)
 		if err != nil && errors.IsNotFound(err) {
 			if err := r.client.Create(ctx, desired); err != nil {
 				return err
 			}
+
+			logger.WithValues("service.name", desired.Name, "service.namespace", desired.Namespace).Info("created")
 		} else if err != nil {
 			return err
 		}
 
 		// it exists already, merge the two if the end result isn't identical to the existing one
-		// TODO(jpkroehling)
+		updated := existing.DeepCopy()
+		if updated.Annotations == nil {
+			updated.Annotations = map[string]string{}
+		}
+		if updated.Labels == nil {
+			updated.Labels = map[string]string{}
+		}
 
+		// we keep the ClusterIP that got assigned by the cluster, if it's empty in the "desired" and not empty on the "current"
+		if desired.Spec.ClusterIP == "" && len(updated.Spec.ClusterIP) > 0 {
+			desired.Spec.ClusterIP = updated.Spec.ClusterIP
+		}
+		updated.Spec = desired.Spec
+		updated.ObjectMeta.OwnerReferences = desired.ObjectMeta.OwnerReferences
+
+		for k, v := range desired.ObjectMeta.Annotations {
+			updated.ObjectMeta.Annotations[k] = v
+		}
+		for k, v := range desired.ObjectMeta.Labels {
+			updated.ObjectMeta.Labels[k] = v
+		}
+
+		if err := r.client.Update(context.Background(), updated); err != nil {
+			return err
+		}
+		logger.V(2).Info("applied", "service.name", desired.Name, "service.namespace", desired.Namespace)
 	}
+
 	// and finally, we should remove all services that were previously created for this instance that
 	// are not in use anymore
-	// TODO(jpkroehling)
 	for _, existing := range list.Items {
 		del := true
 		for _, keep := range svcs {
@@ -65,6 +93,7 @@ func (r *ReconcileOpenTelemetryService) reconcileService(ctx context.Context) er
 			if err := r.client.Delete(ctx, &existing); err != nil {
 				return err
 			}
+			logger.V(2).Info("deleted", "service.name", existing.Name, "service.namespace", existing.Namespace)
 		}
 	}
 
