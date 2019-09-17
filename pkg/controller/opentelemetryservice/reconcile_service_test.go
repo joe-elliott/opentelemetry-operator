@@ -33,6 +33,16 @@ func TestProperHeadlessService(t *testing.T) {
 	assert.Equal(t, s.Spec.ClusterIP, "None")
 }
 
+func TestProperMonitoringService(t *testing.T) {
+	// test
+	s := monitoringService(ctx)
+
+	// verify
+	assert.Equal(t, s.Name, "my-otelsvc-collector-monitoring")
+	assert.Len(t, s.Spec.Ports, 1)
+	assert.Equal(t, int32(8888), s.Spec.Ports[0].Port)
+}
+
 func TestProperReconcileService(t *testing.T) {
 	// prepare
 	req := reconcile.Request{}
@@ -45,7 +55,7 @@ func TestProperReconcileService(t *testing.T) {
 	cl.List(ctx, client.InNamespace(instance.Namespace), list)
 
 	// we assert the correctness of the service in another test
-	assert.Len(t, list.Items, 2)
+	assert.Len(t, list.Items, 3)
 
 	// we assert the correctness of the reference in another test
 	for _, item := range list.Items {

@@ -4,104 +4,86 @@ import (
 	"context"
 	"fmt"
 
+	monitoringv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
+	"github.com/spf13/viper"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/open-telemetry/opentelemetry-operator/pkg/apis/opentelemetry"
 	"github.com/open-telemetry/opentelemetry-operator/pkg/apis/opentelemetry/v1alpha1"
 )
 
-// reconcileService reconciles the service(s) required for the instance in the current context
-func (r *ReconcileOpenTelemetryService) reconcileService(ctx context.Context) error {
-	svcs := []*corev1.Service{
-		service(ctx),
-		monitoringService(ctx),
-		headless(ctx),
+// reconcileServiceMonitor reconciles the service monitor(s) required for the instance in the current context
+func (r *ReconcileOpenTelemetryService) reconcileServiceMonitor(ctx context.Context) error {
+	if !viper.GetBool(opentelemetry.SvcMonitorAvailable) {
+		logger := ctx.Value(opentelemetry.ContextLogger).(logr.Logger)
+		logger.V(2).Info("skipping reconciliation for service monitor, as the CRD isn't registered with the cluster")
+		return nil
+	}
+
+	svcs := []*monitoringv1.ServiceMonitor{
+		serviceMonitor(ctx),
 	}
 
 	// first, handle the create/update parts
-	if err := r.reconcileExpectedServices(ctx, svcs); err != nil {
-		return fmt.Errorf("failed to reconcile the expected services: %v", err)
+	if err := r.reconcileExpectedServiceMonitors(ctx, svcs); err != nil {
+		return fmt.Errorf("failed to reconcile the expected service monitors: %v", err)
 	}
 
 	// then, delete the extra objects
-	if err := r.deleteServices(ctx, svcs); err != nil {
-		return fmt.Errorf("failed to reconcile the services to be deleted: %v", err)
+	if err := r.deleteServiceMonitors(ctx, svcs); err != nil {
+		return fmt.Errorf("failed to reconcile the service monitors to be deleted: %v", err)
 	}
 
 	return nil
 }
 
-func service(ctx context.Context) *corev1.Service {
+func serviceMonitor(ctx context.Context) *monitoringv1.ServiceMonitor {
 	instance := ctx.Value(opentelemetry.ContextInstance).(*v1alpha1.OpenTelemetryService)
 	name := fmt.Sprintf("%s-collector", instance.Name)
 
 	labels := commonLabels(ctx)
 	labels["app.kubernetes.io/name"] = name
 
-	// by coincidence, the selector is the same as the label, but note that the selector points to the deployment
-	// whereas 'labels' refers to the service
-	selector := labels
+	selector := commonLabels(ctx)
+	selector["app.kubernetes.io/name"] = fmt.Sprintf("%s-monitoring", name)
 
-	return &corev1.Service{
+	return &monitoringv1.ServiceMonitor{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
 			Namespace:   instance.Namespace,
 			Labels:      labels,
 			Annotations: instance.Annotations,
 		},
-		Spec: corev1.ServiceSpec{
-			Selector:  selector,
-			ClusterIP: "",
-			Ports: []corev1.ServicePort{
-				{
-					Name:       "jaeger-grpc",
-					Port:       14250,
-					TargetPort: intstr.FromInt(14250),
-				},
+		Spec: monitoringv1.ServiceMonitorSpec{
+			Selector: metav1.LabelSelector{
+				MatchLabels: selector,
 			},
+			Endpoints: []monitoringv1.Endpoint{{
+				Port: "monitoring",
+			}},
 		},
 	}
+
 }
 
-func headless(ctx context.Context) *corev1.Service {
-	h := service(ctx)
-	h.Name = fmt.Sprintf("%s-headless", h.Name)
-	h.Spec.ClusterIP = "None"
-	return h
-}
-
-func monitoringService(ctx context.Context) *corev1.Service {
-	h := service(ctx)
-	h.Name = fmt.Sprintf("%s-monitoring", h.Name)
-	h.Labels["app.kubernetes.io/name"] = h.Name
-	h.Spec.Ports = []corev1.ServicePort{{
-		Name:       "monitoring",
-		Port:       8888,
-		TargetPort: intstr.FromInt(8888),
-	}}
-	return h
-}
-
-func (r *ReconcileOpenTelemetryService) reconcileExpectedServices(ctx context.Context, expected []*corev1.Service) error {
+func (r *ReconcileOpenTelemetryService) reconcileExpectedServiceMonitors(ctx context.Context, expected []*monitoringv1.ServiceMonitor) error {
 	logger := ctx.Value(opentelemetry.ContextLogger).(logr.Logger)
 	for _, obj := range expected {
 		desired := obj
 		r.setControllerReference(ctx, desired)
 
-		existing := &corev1.Service{}
+		existing := &monitoringv1.ServiceMonitor{}
 		err := r.client.Get(ctx, types.NamespacedName{Name: desired.Name, Namespace: desired.Namespace}, existing)
 		if err != nil && errors.IsNotFound(err) {
 			if err := r.client.Create(ctx, desired); err != nil {
 				return fmt.Errorf("failed to create: %v", err)
 			}
 
-			logger.WithValues("service.name", desired.Name, "service.namespace", desired.Namespace).V(2).Info("created")
+			logger.WithValues("svcmon.name", desired.Name, "svcmon.namespace", desired.Namespace).V(2).Info("created")
 			continue
 		} else if err != nil {
 			return fmt.Errorf("failed to retrieve: %v", err)
@@ -116,10 +98,6 @@ func (r *ReconcileOpenTelemetryService) reconcileExpectedServices(ctx context.Co
 			updated.Labels = map[string]string{}
 		}
 
-		// we keep the ClusterIP that got assigned by the cluster, if it's empty in the "desired" and not empty on the "current"
-		if desired.Spec.ClusterIP == "" && len(updated.Spec.ClusterIP) > 0 {
-			desired.Spec.ClusterIP = updated.Spec.ClusterIP
-		}
 		updated.Spec = desired.Spec
 		updated.ObjectMeta.OwnerReferences = desired.ObjectMeta.OwnerReferences
 
@@ -131,15 +109,15 @@ func (r *ReconcileOpenTelemetryService) reconcileExpectedServices(ctx context.Co
 		}
 
 		if err := r.client.Update(ctx, updated); err != nil {
-			return fmt.Errorf("failed to apply changes to service: %v", err)
+			return fmt.Errorf("failed to apply changes to service monitor: %v", err)
 		}
-		logger.V(2).Info("applied", "service.name", desired.Name, "service.namespace", desired.Namespace)
+		logger.V(2).Info("applied", "svcmon.name", desired.Name, "svcmon.namespace", desired.Namespace)
 	}
 
 	return nil
 }
 
-func (r *ReconcileOpenTelemetryService) deleteServices(ctx context.Context, expected []*corev1.Service) error {
+func (r *ReconcileOpenTelemetryService) deleteServiceMonitors(ctx context.Context, expected []*monitoringv1.ServiceMonitor) error {
 	instance := ctx.Value(opentelemetry.ContextInstance).(*v1alpha1.OpenTelemetryService)
 	logger := ctx.Value(opentelemetry.ContextLogger).(logr.Logger)
 
@@ -147,7 +125,7 @@ func (r *ReconcileOpenTelemetryService) deleteServices(ctx context.Context, expe
 		"app.kubernetes.io/instance":   fmt.Sprintf("%s.%s", instance.Namespace, instance.Name),
 		"app.kubernetes.io/managed-by": "opentelemetry-operator",
 	})
-	list := &corev1.ServiceList{}
+	list := &monitoringv1.ServiceMonitorList{}
 	if err := r.client.List(ctx, opts, list); err != nil {
 		return fmt.Errorf("failed to list: %v", err)
 	}
@@ -161,10 +139,10 @@ func (r *ReconcileOpenTelemetryService) deleteServices(ctx context.Context, expe
 		}
 
 		if del {
-			if err := r.client.Delete(ctx, &existing); err != nil {
+			if err := r.client.Delete(ctx, existing); err != nil {
 				return fmt.Errorf("failed to delete: %v", err)
 			}
-			logger.V(2).Info("deleted", "service.name", existing.Name, "service.namespace", existing.Namespace)
+			logger.V(2).Info("deleted", "svcmon.name", existing.Name, "svcmon.namespace", existing.Namespace)
 		}
 	}
 

@@ -2,6 +2,7 @@ module github.com/open-telemetry/opentelemetry-operator
 
 require (
 	github.com/NYTimes/gziphandler v1.0.1 // indirect
+	github.com/coreos/prometheus-operator v0.29.0
 	github.com/go-logr/logr v0.1.0
 	github.com/go-openapi/spec v0.19.0
 	github.com/operator-framework/operator-sdk v0.10.1-0.20190827134739-8e55eb7da610

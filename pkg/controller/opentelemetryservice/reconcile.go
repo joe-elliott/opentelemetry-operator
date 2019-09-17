@@ -40,6 +40,7 @@ func New(client client.Client, scheme *runtime.Scheme) *ReconcileOpenTelemetrySe
 		r.reconcileConfigMap,
 		r.reconcileService,
 		r.reconcileDeployment,
+		r.reconcileServiceMonitor,
 	}
 
 	return r
