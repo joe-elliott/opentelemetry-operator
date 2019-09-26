@@ -42,7 +42,7 @@ At this point, an OpenTelemetry Collector instance can be installed:
 
 ```
 kubectl apply -f deploy/examples/simplest.yaml
-kubectl get otelsvcs
+kubectl get otelcols
 kubectl get pods
 ```
 

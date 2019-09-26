@@ -17,7 +17,7 @@ kubectl create -f https://raw.githubusercontent.com/jpkrohling/opentelemetry-ope
 kubectl create -f https://raw.githubusercontent.com/jpkrohling/opentelemetry-operator/master/deploy/operator.yaml
 ```
 
-Once the `opentelemetry-operator` deployment is ready, create an OpenTelemetry Collector (otelsvc) instance, like:
+Once the `opentelemetry-operator` deployment is ready, create an OpenTelemetry Collector (otelcol) instance, like:
 
 ```
 kubectl apply -f - <<EOF
