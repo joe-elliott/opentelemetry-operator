@@ -31,7 +31,7 @@ type OpenTelemetryServiceStatus struct {
 
 // OpenTelemetryService is the Schema for the opentelemetryservices API
 // +k8s:openapi-gen=true
-// +kubebuilder:resource:shortName=otelsvc;otelsvcs
+// +kubebuilder:resource:shortName=otelcol;otelcols
 // +kubebuilder:subresource:status
 // +kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.replicas
 type OpenTelemetryService struct {

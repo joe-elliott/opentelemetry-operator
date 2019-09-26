@@ -23,7 +23,7 @@ func TestProperDeployment(t *testing.T) {
 	d := deployment(ctx)
 
 	// verify
-	assert.Equal(t, d.Name, "my-otelsvc-collector")
+	assert.Equal(t, d.Name, "my-otelcol-collector")
 	assert.Equal(t, d.Annotations["custom-annotation"], "custom-annotation-value")
 	assert.Equal(t, d.Labels["custom-label"], "custom-value")
 	assert.Equal(t, d.Labels["app.kubernetes.io/name"], d.Name)

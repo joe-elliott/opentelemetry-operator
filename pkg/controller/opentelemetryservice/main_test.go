@@ -37,7 +37,7 @@ func TestMain(m *testing.M) {
 			APIVersion: gvk.GroupVersion().String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        "my-otelsvc",
+			Name:        "my-otelcol",
 			Namespace:   "observability",
 			Labels:      map[string]string{"custom-label": "custom-value"},
 			Annotations: map[string]string{"custom-annotation": "custom-annotation-value"},
