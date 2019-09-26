@@ -11,9 +11,9 @@ func TestDefaultOpenTelemetryService(t *testing.T) {
 }
 
 func TestCurrentOpenTelemetryService(t *testing.T) {
-	otelSvc = "0.0.2" // set during the build
+	otelCol = "0.0.2" // set during the build
 	defer func() {
-		otelSvc = ""
+		otelCol = ""
 	}()
 	assert.Equal(t, "0.0.2", Get().OpenTelemetryService)
 }

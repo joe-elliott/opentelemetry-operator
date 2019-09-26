@@ -85,7 +85,7 @@ func TestOverrideImageFromCustomResource(t *testing.T) {
 
 func TestOverrideImageFromCLI(t *testing.T) {
 	// prepare
-	viper.Set(opentelemetry.OtelSvcImageConfigKey, "myrepo/custom-image-cli:version")
+	viper.Set(opentelemetry.OtelColImageConfigKey, "myrepo/custom-image-cli:version")
 	defer viper.Reset()
 
 	// test

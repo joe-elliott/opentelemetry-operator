@@ -43,7 +43,7 @@ func deployment(ctx context.Context) *appsv1.Deployment {
 
 	image := instance.Spec.Image
 	if len(image) == 0 {
-		image = viper.GetString(opentelemetry.OtelSvcImageConfigKey)
+		image = viper.GetString(opentelemetry.OtelColImageConfigKey)
 	}
 
 	labels := commonLabels(ctx)

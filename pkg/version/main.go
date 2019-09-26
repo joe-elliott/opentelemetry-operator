@@ -10,7 +10,7 @@ import (
 var (
 	version   string
 	buildDate string
-	otelSvc   string
+	otelCol   string
 )
 
 // Version holds this Operator's version as well as the version of some of the components it uses
@@ -46,9 +46,9 @@ func (v Version) String() string {
 
 // DefaultOpenTelemetryService returns the default OpenTelemetryService to use when no versions are specified via CLI or configuration
 func DefaultOpenTelemetryService() string {
-	if len(otelSvc) > 0 {
+	if len(otelCol) > 0 {
 		// this should always be set, as it's specified during the build
-		return otelSvc
+		return otelCol
 	}
 
 	// fallback value, useful for tests
