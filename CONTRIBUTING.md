@@ -38,7 +38,7 @@ Once minikube has finished starting, get the Operator running:
 make run
 ```
 
-At this point, an OpenTelemetry Service instance can be installed:
+At this point, an OpenTelemetry Collector instance can be installed:
 
 ```
 kubectl apply -f deploy/examples/simplest.yaml
