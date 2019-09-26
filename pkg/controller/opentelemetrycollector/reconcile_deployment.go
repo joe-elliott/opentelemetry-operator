@@ -1,4 +1,4 @@
-package opentelemetryservice
+package opentelemetrycollector
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 )
 
 // reconcileDeployment reconciles the deployment(s) required for the instance in the current context
-func (r *ReconcileOpenTelemetryService) reconcileDeployment(ctx context.Context) error {
+func (r *ReconcileOpenTelemetryCollector) reconcileDeployment(ctx context.Context) error {
 	desired := []*appsv1.Deployment{
 		deployment(ctx),
 	}
@@ -37,7 +37,7 @@ func (r *ReconcileOpenTelemetryService) reconcileDeployment(ctx context.Context)
 }
 
 func deployment(ctx context.Context) *appsv1.Deployment {
-	instance := ctx.Value(opentelemetry.ContextInstance).(*v1alpha1.OpenTelemetryService)
+	instance := ctx.Value(opentelemetry.ContextInstance).(*v1alpha1.OpenTelemetryCollector)
 	logger := ctx.Value(opentelemetry.ContextLogger).(logr.Logger)
 	name := fmt.Sprintf("%s-collector", instance.Name)
 
@@ -120,7 +120,7 @@ func deployment(ctx context.Context) *appsv1.Deployment {
 	}
 }
 
-func (r *ReconcileOpenTelemetryService) reconcileExpectedDeployments(ctx context.Context, expected []*appsv1.Deployment) error {
+func (r *ReconcileOpenTelemetryCollector) reconcileExpectedDeployments(ctx context.Context, expected []*appsv1.Deployment) error {
 	logger := ctx.Value(opentelemetry.ContextLogger).(logr.Logger)
 	for _, obj := range expected {
 		desired := obj
@@ -167,8 +167,8 @@ func (r *ReconcileOpenTelemetryService) reconcileExpectedDeployments(ctx context
 	return nil
 }
 
-func (r *ReconcileOpenTelemetryService) deleteDeployments(ctx context.Context, expected []*appsv1.Deployment) error {
-	instance := ctx.Value(opentelemetry.ContextInstance).(*v1alpha1.OpenTelemetryService)
+func (r *ReconcileOpenTelemetryCollector) deleteDeployments(ctx context.Context, expected []*appsv1.Deployment) error {
+	instance := ctx.Value(opentelemetry.ContextInstance).(*v1alpha1.OpenTelemetryCollector)
 	logger := ctx.Value(opentelemetry.ContextLogger).(logr.Logger)
 
 	opts := client.InNamespace(instance.Namespace).MatchingLabels(map[string]string{

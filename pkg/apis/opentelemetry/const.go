@@ -6,7 +6,7 @@ type (
 )
 
 const (
-	// ContextInstance is the OpenTelemetryService CR (instance) that is the current target of the reconciliation
+	// ContextInstance is the OpenTelemetryCollector CR (instance) that is the current target of the reconciliation
 	ContextInstance ContextEntry = "__instance"
 
 	// ContextLogger represents the context entry for the logger instance to be used for context-dependent log entries

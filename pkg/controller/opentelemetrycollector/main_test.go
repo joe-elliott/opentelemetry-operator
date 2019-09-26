@@ -1,4 +1,4 @@
-package opentelemetryservice
+package opentelemetrycollector
 
 import (
 	"context"
@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	instance   *v1alpha1.OpenTelemetryService
+	instance   *v1alpha1.OpenTelemetryCollector
 	ctx        context.Context
-	reconciler *ReconcileOpenTelemetryService
+	reconciler *ReconcileOpenTelemetryCollector
 	schem      *runtime.Scheme
 	cl         client.Client
 )
@@ -27,10 +27,10 @@ var (
 // TestMain ensures that all tests in this package have a fresh and sane instance of the common resources
 func TestMain(m *testing.M) {
 	schem = scheme.Scheme
-	schem.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.OpenTelemetryService{})
+	schem.AddKnownTypes(v1alpha1.SchemeGroupVersion, &v1alpha1.OpenTelemetryCollector{})
 
-	gvk := v1alpha1.SchemeGroupVersion.WithKind("OpenTelemetryService")
-	instance = &v1alpha1.OpenTelemetryService{
+	gvk := v1alpha1.SchemeGroupVersion.WithKind("OpenTelemetryCollector")
+	instance = &v1alpha1.OpenTelemetryCollector{
 		TypeMeta: metav1.TypeMeta{
 			// TypeMeta is added by Kubernetes, there's no need for consumers to set this manually
 			Kind:       gvk.Kind,
@@ -42,7 +42,7 @@ func TestMain(m *testing.M) {
 			Labels:      map[string]string{"custom-label": "custom-value"},
 			Annotations: map[string]string{"custom-annotation": "custom-annotation-value"},
 		},
-		Spec: v1alpha1.OpenTelemetryServiceSpec{
+		Spec: v1alpha1.OpenTelemetryCollectorSpec{
 			Config: "the-config-in-yaml-format",
 		},
 	}

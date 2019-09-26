@@ -11,17 +11,17 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryService":       schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryService(ref),
-		"./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryServiceSpec":   schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryServiceSpec(ref),
-		"./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryServiceStatus": schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryServiceStatus(ref),
+		"./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryCollector":       schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryCollector(ref),
+		"./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryCollectorSpec":   schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryCollectorSpec(ref),
+		"./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryCollectorStatus": schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryCollectorStatus(ref),
 	}
 }
 
-func schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryService(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryCollector(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "OpenTelemetryService is the Schema for the opentelemetryservices API",
+				Description: "OpenTelemetryCollector is the Schema for the opentelemetrycollectors API",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"kind": {
@@ -45,27 +45,27 @@ func schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryService(ref common.Refe
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryServiceSpec"),
+							Ref: ref("./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryCollectorSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryServiceStatus"),
+							Ref: ref("./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryCollectorStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryServiceSpec", "./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryServiceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryCollectorSpec", "./pkg/apis/opentelemetry/v1alpha1.OpenTelemetryCollectorStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryServiceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryCollectorSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "OpenTelemetryServiceSpec defines the desired state of OpenTelemetryService",
+				Description: "OpenTelemetryCollectorSpec defines the desired state of OpenTelemetryCollector",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"config": {
@@ -106,11 +106,11 @@ func schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryServiceSpec(ref common.
 	}
 }
 
-func schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryServiceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_opentelemetry_v1alpha1_OpenTelemetryCollectorStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "OpenTelemetryServiceStatus defines the observed state of OpenTelemetryService",
+				Description: "OpenTelemetryCollectorStatus defines the observed state of OpenTelemetryCollector",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"replicas": {

@@ -54,7 +54,7 @@ kubectl delete -f deploy/examples/simplest.yaml
 
 #### Model changes
 
-The Operator SDK generates the `pkg/apis/opentelemetry/v1alpha1//zz_generated.*.go` files via the command `make generate`. This should be executed whenever there's a model change (`pkg/apis/opentelemetry/v1alpha1//opentelemetryservice_types.go`)
+The Operator SDK generates the `pkg/apis/opentelemetry/v1alpha1//zz_generated.*.go` files via the command `make generate`. This should be executed whenever there's a model change (`pkg/apis/opentelemetry/v1alpha1//opentelemetrycollector_types.go`)
 
 #### Tests
 

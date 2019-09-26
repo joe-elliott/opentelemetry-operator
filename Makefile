@@ -69,7 +69,7 @@ clean:
 
 .PHONY: crd
 crd:
-	@kubectl create -f deploy/crds/opentelemetry_v1alpha1_opentelemetryservice_crd.yaml 2>&1 | grep -v "already exists" || true
+	@kubectl create -f deploy/crds/opentelemetry_v1alpha1_opentelemetrycollector_crd.yaml 2>&1 | grep -v "already exists" || true
 
 .PHONY: generate
 generate:

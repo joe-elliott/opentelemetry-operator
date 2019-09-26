@@ -1,4 +1,4 @@
-package opentelemetryservice
+package opentelemetrycollector
 
 import (
 	"context"
@@ -31,8 +31,8 @@ func TestProperDeployment(t *testing.T) {
 
 func TestDeploymentOverridesConfig(t *testing.T) {
 	// prepare
-	instance := &v1alpha1.OpenTelemetryService{
-		Spec: v1alpha1.OpenTelemetryServiceSpec{
+	instance := &v1alpha1.OpenTelemetryCollector{
+		Spec: v1alpha1.OpenTelemetryCollectorSpec{
 			Args: map[string]string{"config": "custom-path"},
 		},
 	}
@@ -68,8 +68,8 @@ func TestProperReconcileDeployment(t *testing.T) {
 
 func TestOverrideImageFromCustomResource(t *testing.T) {
 	// prepare
-	instance := &v1alpha1.OpenTelemetryService{
-		Spec: v1alpha1.OpenTelemetryServiceSpec{
+	instance := &v1alpha1.OpenTelemetryCollector{
+		Spec: v1alpha1.OpenTelemetryCollectorSpec{
 			Image: "myrepo/custom-image:version",
 		},
 	}

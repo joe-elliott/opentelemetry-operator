@@ -17,7 +17,7 @@ func ManagedInstances(ctx context.Context, c client.Client) error {
 	logger := ctx.Value(opentelemetry.ContextLogger).(logr.Logger)
 	logger.Info("looking for managed instances to upgrade")
 
-	list := &v1alpha1.OpenTelemetryServiceList{}
+	list := &v1alpha1.OpenTelemetryCollectorList{}
 	if err := c.List(ctx, &client.ListOptions{}, list); err != nil {
 		return fmt.Errorf("failed to get list of otelcol instances: %v", err)
 	}
@@ -48,7 +48,7 @@ func ManagedInstances(ctx context.Context, c client.Client) error {
 }
 
 // ManagedInstance performs the necessary changes to bring the given otelcol instance to the current version
-func ManagedInstance(ctx context.Context, client client.Client, otelcol *v1alpha1.OpenTelemetryService) (*v1alpha1.OpenTelemetryService, error) {
+func ManagedInstance(ctx context.Context, client client.Client, otelcol *v1alpha1.OpenTelemetryCollector) (*v1alpha1.OpenTelemetryCollector, error) {
 	logger := ctx.Value(opentelemetry.ContextLogger).(logr.Logger)
 
 	if v, ok := versions[otelcol.Status.Version]; ok {

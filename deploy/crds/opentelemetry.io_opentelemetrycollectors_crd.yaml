@@ -1,24 +1,24 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: opentelemetryservices.opentelemetry.io
+  name: opentelemetrycollectors.opentelemetry.io
 spec:
   group: opentelemetry.io
   names:
-    kind: OpenTelemetryService
-    listKind: OpenTelemetryServiceList
-    plural: opentelemetryservices
+    kind: OpenTelemetryCollector
+    listKind: OpenTelemetryCollectorList
+    plural: opentelemetrycollectors
     shortNames:
     - otelcol
     - otelcols
-    singular: opentelemetryservice
+    singular: opentelemetrycollector
   scope: Namespaced
   version: v1alpha1
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: OpenTelemetryService is the Schema for the opentelemetryservices
+        description: OpenTelemetryCollector is the Schema for the opentelemetrycollectors
           API
         properties:
           apiVersion:
@@ -34,7 +34,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: OpenTelemetryServiceSpec defines the desired state of OpenTelemetryService
+            description: OpenTelemetryCollectorSpec defines the desired state of OpenTelemetryCollector
             properties:
               args:
                 additionalProperties:
@@ -49,8 +49,8 @@ spec:
                 type: integer
             type: object
           status:
-            description: OpenTelemetryServiceStatus defines the observed state of
-              OpenTelemetryService
+            description: OpenTelemetryCollectorStatus defines the observed state of
+              OpenTelemetryCollector
             properties:
               replicas:
                 format: int32

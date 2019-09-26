@@ -1,4 +1,4 @@
-package opentelemetryservice
+package opentelemetrycollector
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 
 func TestNilLabels(t *testing.T) {
 	// prepare
-	instance := &v1alpha1.OpenTelemetryService{
+	instance := &v1alpha1.OpenTelemetryCollector{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "my-otelcol",
 			Namespace: "observability",
@@ -35,7 +35,7 @@ func TestNilLabels(t *testing.T) {
 
 func TestInstanceName(t *testing.T) {
 	// prepare
-	instance := &v1alpha1.OpenTelemetryService{
+	instance := &v1alpha1.OpenTelemetryCollector{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "my-otelcol",
 			Namespace: "observability",
