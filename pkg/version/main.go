@@ -17,7 +17,7 @@ var (
 type Version struct {
 	Operator               string `json:"opentelemetry-operator"`
 	BuildDate              string `json:"build-date"`
-	OpenTelemetryCollector string `json:"opentelemetry-service-version"`
+	OpenTelemetryCollector string `json:"opentelemetry-collector-version"`
 	Go                     string `json:"go-version"`
 	OperatorSdk            string `json:"operator-sdk-version"`
 }

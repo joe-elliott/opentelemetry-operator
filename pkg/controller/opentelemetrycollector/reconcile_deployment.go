@@ -94,7 +94,7 @@ func deployment(ctx context.Context) *appsv1.Deployment {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Name:  "opentelemetry-service",
+						Name:  "opentelemetry-collector",
 						Image: image,
 						VolumeMounts: []corev1.VolumeMount{{
 							Name:      name,

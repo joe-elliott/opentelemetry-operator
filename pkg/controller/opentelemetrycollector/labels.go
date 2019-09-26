@@ -19,7 +19,7 @@ func commonLabels(ctx context.Context) map[string]string {
 	base["app.kubernetes.io/managed-by"] = "opentelemetry-operator"
 	base["app.kubernetes.io/instance"] = fmt.Sprintf("%s.%s", instance.Namespace, instance.Name)
 	base["app.kubernetes.io/part-of"] = "opentelemetry"
-	base["app.kubernetes.io/component"] = "opentelemetry-service"
+	base["app.kubernetes.io/component"] = "opentelemetry-collector"
 
 	return base
 }

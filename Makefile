@@ -12,9 +12,9 @@ NAMESPACE ?= "${USER}"
 BUILD_IMAGE ?= "${NAMESPACE}/${OPERATOR_NAME}:latest"
 OUTPUT_BINARY ?= "${BIN_DIR}/${OPERATOR_NAME}"
 VERSION_PKG ?= "github.com/open-telemetry/opentelemetry-operator/pkg/version"
-LD_FLAGS ?= "-X ${VERSION_PKG}.version=${OPERATOR_VERSION} -X ${VERSION_PKG}.buildDate=${VERSION_DATE} -X ${VERSION_PKG}.otelSvc=${OTELSVC_VERSION}"
+LD_FLAGS ?= "-X ${VERSION_PKG}.version=${OPERATOR_VERSION} -X ${VERSION_PKG}.buildDate=${VERSION_DATE} -X ${VERSION_PKG}.otelCol=${OTELSVC_VERSION}"
 
-OTELSVC_VERSION ?= "$(shell grep -v '\#' opentelemetry.version | grep opentelemetry-service | awk -F= '{print $$2}')"
+OTELSVC_VERSION ?= "$(shell grep -v '\#' opentelemetry.version | grep opentelemetry-collector | awk -F= '{print $$2}')"
 
 PACKAGES := $(shell go list ./cmd/... ./pkg/...)
 
